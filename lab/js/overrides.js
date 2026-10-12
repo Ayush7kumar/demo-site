@@ -14,8 +14,8 @@
   if (C.post) {
     C.post.aberration = 0.001;  // removes chromatic color splitting on sharp pipeline corners
     if (C.post.bloom) {
-      C.post.bloom.strength = 0.32;
-      C.post.bloom.threshold = 0.98;
+      C.post.bloom.strength = 0.2; // reduced for smoother performance
+      C.post.bloom.threshold = 0.99; // slightly higher to avoid overbright
     }
   }
   // Refined node bursts: subtle elegant pulse instead of jagged starburst flare
