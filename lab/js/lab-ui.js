@@ -1,9 +1,9 @@
 /* Lab chrome. Runs after the 3D engine (scroll-driven). Pure vanilla.
-   - Morphs and shrinks the glass bar into a pill on scroll down
+   - Morphs and shrinks the whitish-tinted glass bar into a pill on scroll down
    - Cycles the accent (bar, orb, lens, markers) through the 3D's own palette as you scroll
-   - Real-time seamless liquid glass magnifying lens cursor
+   - 4K crisp real-time liquid glass magnifying lens cursor
    - Node tap card opens smoothly without any upward scroll jump
-   - Translucent texture on bottom footer with live counter stats */
+   - Translucent-ish textured bottom footer with live counter stats */
 (function () {
   const W = window.W3D, D = document, root = D.documentElement;
   const $ = s => D.querySelector(s), $$ = s => [...D.querySelectorAll(s)];
@@ -58,7 +58,9 @@
     el.textContent = el.dataset.pad ? pad2(to) : to;
   });
 
-  $('#orb').addEventListener('click', () => D.body.classList.toggle('light'));
+  const orb = $('#orb');
+  if (orb) orb.addEventListener('click', () => D.body.classList.toggle('light'));
+
   $$('#dock a[href^="#"], #end a[href^="#"]').forEach(a => a.addEventListener('click', e => {
     const href = a.getAttribute('href');
     if (href === '#end') {
@@ -73,21 +75,25 @@
     }
   }));
 
-  /* ---------------------------------------------------------------- seamless liquid-glass magnifying lens cursor */
+  /* ---------------------------------------------------------------- modern 4K crisp liquid-glass magnifying lens cursor */
   if (matchMedia('(pointer: fine)').matches) {
     D.body.classList.add('fine');
     const lens = $('#lens');
     const label = $('#lens span');
     const lensCv = $('#lens-cv');
-    const lensCtx = lensCv ? lensCv.getContext('2d') : null;
+    const lensCtx = lensCv ? lensCv.getContext('2d', { alpha: true }) : null;
 
     let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
     let isHot = false;
-    const cvSize = 140;
+
+    // High-resolution backing store for 4K crisp magnification
+    const dpr = Math.max(window.devicePixelRatio || 1, 2);
+    const lensRadius = 40;                            // 80px lens diameter
+    const cvDim = Math.round(lensRadius * 2 * dpr);   // Physical backing buffer
 
     if (lensCv) {
-      lensCv.width = cvSize;
-      lensCv.height = cvSize;
+      lensCv.width = cvDim;
+      lensCv.height = cvDim;
     }
 
     addEventListener('pointermove', e => {
@@ -105,7 +111,7 @@
       }
     }, { passive: true });
 
-    addEventListener('pointerdown', () => { if (lens) lens.style.scale = '.88'; });
+    addEventListener('pointerdown', () => { if (lens) lens.style.scale = '.9'; });
     addEventListener('pointerup', () => { if (lens) lens.style.scale = '1'; });
 
     let stageCanvas = null;
@@ -115,25 +121,27 @@
       if (!stageCanvas) stageCanvas = D.querySelector('#stage canvas');
       if (!stageCanvas || !stageCanvas.width || !stageCanvas.height) return;
 
-      const r = 36;        // radius of lens in screen CSS pixels
-      const zoom = 1.65;   // 1.65x optical magnification
+      const zoom = 1.75;                               // 1.75x optical magnification
 
       const scaleX = stageCanvas.width / innerWidth;
       const scaleY = stageCanvas.height / innerHeight;
 
-      const sw = (2 * r / zoom) * scaleX;
-      const sh = (2 * r / zoom) * scaleY;
-      const sx = (x - r / zoom) * scaleX;
-      const sy = (y - r / zoom) * scaleY;
+      const sw = (lensRadius * 2 / zoom) * scaleX;
+      const sh = (lensRadius * 2 / zoom) * scaleY;
+      const sx = (x - lensRadius / zoom) * scaleX;
+      const sy = (y - lensRadius / zoom) * scaleY;
 
-      lensCtx.clearRect(0, 0, cvSize, cvSize);
+      lensCtx.imageSmoothingEnabled = true;
+      lensCtx.imageSmoothingQuality = 'high';
+
+      lensCtx.clearRect(0, 0, cvDim, cvDim);
       lensCtx.save();
       lensCtx.beginPath();
-      lensCtx.arc(cvSize / 2, cvSize / 2, cvSize / 2 - 1, 0, Math.PI * 2);
+      lensCtx.arc(cvDim / 2, cvDim / 2, cvDim / 2 - 1, 0, Math.PI * 2);
       lensCtx.clip();
 
       try {
-        lensCtx.drawImage(stageCanvas, sx, sy, sw, sh, 0, 0, cvSize, cvSize);
+        lensCtx.drawImage(stageCanvas, sx, sy, sw, sh, 0, 0, cvDim, cvDim);
       } catch (err) {
         // Fallback gracefully
       }
@@ -141,8 +149,8 @@
     }
 
     (function loop() {
-      x += (tx - x) * 0.22;
-      y += (ty - y) * 0.22;
+      x += (tx - x) * 0.24;
+      y += (ty - y) * 0.24;
       if (lens) {
         lens.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
       }

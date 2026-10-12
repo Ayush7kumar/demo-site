@@ -1,0 +1,468 @@
+/* Lab — modern high-end editorial aesthetic with 3D hardware workflow.
+   - Whitish subtle tinted textured background (Image 2 Flowjam style)
+   - Translucent-ish textured bottom footer with live system telemetry
+   - Whitish subtle tinted glass navigation bar that shrinks on scroll
+   - Razor-sharp 4K modern liquid-glass magnifying lens cursor
+   - Seamless fixed tap card */
+
+:root {
+  --bg: #f5f4ef;                                       /* warm whitish subtle tint like Image 2 */
+  --bg-tint: rgba(245, 244, 239, 0.88);
+  --ink: #111317;                                      /* crisp dark ink typography */
+  --mut: #585e68;                                      /* elegant muted text */
+  --dim: #888f98;                                      /* subtle dim text */
+  --accent: #ff8a1e;                                   /* dynamic flow accent */
+  --glass: rgba(255, 255, 255, 0.82);                 /* whitish subtle tint glass */
+  --edge: rgba(0, 0, 0, 0.08);
+  --edge-highlight: rgba(255, 255, 255, 0.95);
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* fine organic paper noise texture */
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle organic tinted ambient blooms in background like Image 2 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 182, 193, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 82% 35%, rgba(255, 204, 153, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 75%, rgba(180, 230, 200, 0.18) 0%, transparent 48%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fine paper grain texture over the entire page */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--noise);
+  background-size: 160px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+body.fine, body.fine * { cursor: none !important; }
+[hidden] { display: none !important; }
+a { color: inherit; text-decoration: none; }
+
+/* 3D wall container */
+#wall { position: relative; z-index: 2; }
+#stage { position: sticky; top: 0; height: 100vh; z-index: 2; }
+#stage canvas { display: block; width: 100%; height: 100%; opacity: 0; }
+#scroll { position: relative; z-index: 3; width: 1px; margin-top: -100vh; }
+
+/* ---------------------------------------------------------------- footer (translucent-ish style with texture on bottom) */
+#end {
+  position: relative;
+  z-index: 10;
+  background: rgba(245, 244, 239, 0.76);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 14vh 6vw 8vh;
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  backdrop-filter: blur(28px) saturate(1.35);
+  overflow: hidden;
+  box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.03);
+}
+/* Translucent grain texture layer on bottom */
+#end::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise);
+  background-size: 160px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+/* Subtle top accent reflection hairline */
+#end::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, rgba(0, 0, 0, 0.12)), transparent);
+  pointer-events: none;
+}
+
+.end-head {
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--mut);
+  margin-bottom: 7vh;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  font-weight: 600;
+}
+.end-head .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2.4s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+.stats {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr 1fr;
+  align-items: stretch;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
+}
+.stat {
+  padding: 24px 30px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 230px;
+  background: rgba(255, 255, 255, 0.58);
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: background .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.stat:hover {
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+.stat .n {
+  font-weight: 600;
+  font-size: clamp(56px, 8vw, 130px);
+  line-height: .84;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.stat .u { font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mut); font-weight: 600; }
+.stat .c { color: var(--mut); font-size: 13.5px; line-height: 1.55; max-width: 24ch; }
+.stat .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
+
+/* Vibrant accented feature tile (like Flowjam Image 2 vibrant pill) */
+.stat.tile {
+  border-radius: 18px;
+  padding: 26px 28px;
+  color: #ffffff;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #ff4d94, var(--accent));
+  box-shadow: 0 16px 40px rgba(255, 77, 148, 0.32);
+  border: none;
+}
+.stat.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise);
+  background-size: 160px;
+  opacity: .35;
+  mix-blend-mode: overlay;
+}
+.stat.tile .n { color: #ffffff; }
+.stat.tile .u { color: rgba(255, 255, 255, 0.92); }
+.stat.tile .c { color: rgba(255, 255, 255, 0.88); font-weight: 500; }
+
+.end-foot {
+  margin-top: 10vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 5vh;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--dim);
+  font-size: 13px;
+  position: relative;
+  z-index: 2;
+}
+.end-foot .links { display: flex; gap: 24px; font-weight: 500; }
+.end-foot a { transition: color .2s; }
+.end-foot a:hover { color: var(--ink); }
+
+/* ---------------------------------------------------------------- bar with whitish subtle tint: shrinks on scroll down */
+#dock {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 50;
+  transform: translateX(-50%) scale(calc(1 - var(--p) * 0.08));
+  --p: 0;
+  --dgap: calc(14px + (1 - var(--p)) * 18px);
+  display: flex;
+  align-items: center;
+  gap: var(--dgap);
+  padding: calc(9px + (1 - var(--p)) * 8px) calc(20px + (1 - var(--p)) * 16px);
+  border-radius: 50px;
+  font-size: calc(13.5px + (1 - var(--p)) * 1.5px);
+  background: var(--glass);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1),
+              gap .35s ease,
+              padding .35s ease,
+              border-color .35s ease,
+              box-shadow .35s ease,
+              background .35s ease;
+  overflow: hidden;
+}
+#dock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise);
+  background-size: 160px;
+  opacity: .4;
+  pointer-events: none;
+}
+/* Shrunk state on scroll down */
+#dock.compact {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1),
+              0 0 20px color-mix(in srgb, var(--accent) 22%, transparent),
+              inset 0 1px 0 #fff;
+}
+
+#dock .orb {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 65%, #fff), rgba(255, 255, 255, 0.95));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+#dock .orb svg { width: 15px; height: 15px; stroke: var(--ink); transition: transform .6s ease; }
+#dock .orb:hover svg { transform: rotate(60deg); }
+#dock a {
+  color: #4b515a;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color .2s, max-width .35s ease, opacity .3s ease, margin .35s ease;
+}
+#dock a:hover, #dock a.active { color: var(--ink); font-weight: 600; }
+#dock .extra { max-width: 130px; overflow: hidden; }
+#dock.compact .extra {
+  max-width: 0;
+  opacity: 0;
+  padding: 0;
+  margin-left: calc(var(--dgap) * -1);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- modern 4K crisp liquid-glass magnifying lens cursor */
+#lens {
+  position: fixed;
+  z-index: 60;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width .28s cubic-bezier(.16, 1, .3, 1),
+              height .28s cubic-bezier(.16, 1, .3, 1),
+              border-radius .28s cubic-bezier(.16, 1, .3, 1),
+              scale .14s ease,
+              box-shadow .28s;
+  will-change: transform, width, height;
+}
+
+/* raw 4K crisp magnification viewport: NO blur filters */
+#lens-cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  display: block;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .2s ease;
+}
+
+/* modern razor-sharp optical glass rim */
+.lens-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  background: transparent;
+  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+              0 8px 30px rgba(0, 0, 0, 0.22),
+              0 0 14px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: border-color .25s, box-shadow .25s;
+}
+
+/* minimalist precision reticle */
+.lens-glass::before {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  width: 3.5px;
+  height: 3.5px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 4px #ffffff, 0 0 8px var(--accent);
+}
+
+/* action badge on interactive elements */
+#lens span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity .2s;
+}
+
+/* morphs into modern frosted pill when hovering over interactive targets */
+#lens.hot {
+  width: auto;
+  min-width: 96px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 22px;
+}
+#lens.hot #lens-cv {
+  opacity: 0;
+}
+#lens.hot .lens-glass {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+#lens.hot .lens-glass::before {
+  display: none;
+}
+#lens.hot span {
+  opacity: 1;
+  position: static;
+}
+
+/* ---------------------------------------------------------------- tap card: whitish subtle tint glass, fixed in viewport */
+#card {
+  --accent: #ff8a1e;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 55;
+  width: 254px;
+  pointer-events: auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.14), inset 0 1px 0 #fff;
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  backdrop-filter: blur(24px) saturate(1.35);
+  opacity: 0;
+  transform: translate(-9999px, -9999px);
+  transition: opacity .2s ease;
+}
+#card.show { opacity: 1; }
+#card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2.5px;
+  background: var(--accent);
+  z-index: 1;
+}
+.card-top { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; padding: 15px 16px 0; }
+#card-logo { width: 34px; height: 34px; border-radius: 9px; border: 1px solid rgba(0, 0, 0, 0.08); flex: none; }
+#card b { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+#card p { position: relative; z-index: 1; margin: 9px 16px 0; color: #555c66; font-size: 13px; line-height: 1.45; }
+#card a {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 13px 16px 16px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: #111317;
+  border: 1px solid #111317;
+  transition: background .2s, border-color .2s, transform .2s;
+}
+#card a:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+#card a::after { content: '\2197'; opacity: .9; }
+
+#fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--mut);
+  font: 15px/1.5 var(--sans);
+}
+#fallback code { color: var(--dim); font: 12px/1.4 Consolas, monospace; }
+
+@media (max-width: 760px) {
+  .stats { grid-template-columns: 1fr; gap: 16px; }
+  .stat { padding: 20px; min-height: auto; }
+  #dock { gap: 14px; font-size: 13px; padding: 10px 16px; bottom: 16px; }
+  #dock .extra { display: none; }
+}
