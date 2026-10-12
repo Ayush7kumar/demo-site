@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Automation Studio — Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/lab.css?v=20261012c">
+</head>
+<body>
+<!-- the 3D wall, fixed and uncovered while it plays -->
+<div id="wall">
+  <div id="stage"></div>
+  <!-- scrolling through this drives the flow; the wall stays pinned while it plays, then scrolls away and the footer follows -->
+  <div id="scroll"></div>
+</div>
+
+<!-- footer: appears only after the wall animation is over with translucent texture bottom -->
+<footer id="end">
+  <div class="end-head"><span class="dot"></span> System readout · measured live from the diagram</div>
+  <div class="stats">
+    <div class="stat tile">
+      <div class="top"><span class="n" data-count="57">57</span><span class="u">Nodes</span></div>
+      <div class="c">Every step in the reference workflow, placed by hand on the wall.</div>
+    </div>
+    <div class="stat">
+      <div class="top"><span class="n" data-count="56">56</span><span class="u">Connections</span></div>
+      <div class="c">Right-angle conduits routed between the steps.</div>
+    </div>
+    <div class="stat">
+      <div class="top"><span class="n" data-count="8" data-pad="2">08</span><span class="u">Routes</span></div>
+      <div class="c">Signal flows animating across the wall, each in its own colour.</div>
+    </div>
+    <div class="stat">
+      <div class="top"><span class="n" data-count="23">23</span><span class="u">Node types</span></div>
+      <div class="c">Distinct step icons, all drawn from scratch on canvas.</div>
+    </div>
+  </div>
+  <div class="end-foot">
+    <div class="links">
+      <a href="#" data-cursor="open">The full wall ↗</a>
+      <a href="#" data-cursor="go">Work</a>
+      <a href="#" data-cursor="go">About</a>
+    </div>
+    <div>Automation Studio · experimental build · 2026</div>
+  </div>
+</footer>
+
+<!-- the morphing glass bar — wide at the top, shrinks to a pill on scroll -->
+<nav id="dock">
+  <button id="orb" class="orb" title="Toggle theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></button>
+  <a href="#" class="active" data-cursor="go">Work</a>
+  <a href="#" data-cursor="go">Systems</a>
+  <a href="#" class="extra" data-cursor="open">Experiments</a>
+  <a href="#end" data-cursor="go">Readout</a>
+  <a href="#" class="extra" data-cursor="go">Let's talk ↗</a>
+</nav>
+
+<!-- liquid-glass magnifying lens cursor -->
+<div id="lens">
+  <canvas id="lens-cv" width="140" height="140"></canvas>
+  <div class="lens-glass"></div>
+  <span></span>
+</div>
+
+<!-- engine's tap card + fallback (fixed in viewport, opens smoothly without upward scroll jump) -->
+<div id="card" hidden>
+  <div class="card-top"><img id="card-logo" alt=""><b id="card-title"></b></div>
+  <p id="card-text"></p><a id="card-link" target="_blank" rel="noopener">Open</a>
+</div>
+<div id="fallback" hidden><span>The 3D view could not start.</span><code id="why"></code></div>
+
+<script>
+  function w3dFail(msg) { document.getElementById('why').textContent = msg || ''; document.getElementById('fallback').hidden = false; }
+  addEventListener('error', function (e) { w3dFail(e.message || (e.target && e.target.src ? 'Could not load ' + e.target.src : '')); }, true);
+  addEventListener('unhandledrejection', function (e) { w3dFail(String(e.reason && e.reason.message || e.reason)); });
+</script>
+<!-- completely self-contained scripts from lab/js/ -->
+<script src="js/config.js"></script>
+<script src="js/overrides.js"></script>
+<script src="js/engine.js?v=20261012c"></script>
+<script src="js/lab-ui.js?v=20261012c"></script>
+</body>
+</html>

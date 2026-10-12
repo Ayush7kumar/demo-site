@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local/sub repo
+site-vercel/

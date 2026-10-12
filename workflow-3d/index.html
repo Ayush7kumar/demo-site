@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow 3D</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; background: #050607; }
+  [hidden] { display: none !important; }
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; opacity: 0; }
+  /* the page is only as tall as the story is long; scrolling it moves the light (height is set from config) */
+  #scroll { width: 1px; }
+  /* layer for the owner's widgets, taskbar, menus and type. Only elements that opt in receive clicks */
+  #ui { position: fixed; inset: 0; pointer-events: none; font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #e6ebf0; }
+  #hint { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); letter-spacing: .28em; text-transform: uppercase;
+    font-size: 11px; color: #8b929a; }
+  /* the tap card reads like a readout panel on the wall: same dark glass as the nodes, a thin edge in the tapped node's colour */
+  #card { --accent: #3fdcff; position: absolute; left: 0; top: 0; width: 246px; pointer-events: auto; border-radius: 14px; overflow: hidden;
+    background: linear-gradient(180deg, rgba(19, 22, 26, .9), rgba(10, 12, 14, .9));
+    border: 1px solid rgba(255, 255, 255, .07); box-shadow: 0 22px 60px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .05);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    opacity: 0; transform-origin: top left; transition: opacity .2s ease; }
+  #card.show { opacity: 1; }
+  #card::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--accent); opacity: .65; }
+  .card-top { display: flex; align-items: center; gap: 11px; padding: 15px 16px 0; }
+  #card-logo { width: 36px; height: 36px; border-radius: 9px; flex: none; border: 1px solid rgba(255, 255, 255, .08); }
+  #card b { font-size: 14.5px; font-weight: 600; }
+  #card p { margin: 10px 16px 0; color: #8d959e; font-size: 12.5px; }
+  #card a { display: inline-flex; align-items: center; gap: 7px; margin: 13px 16px 16px; padding: 7px 13px; border-radius: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
+    color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  #card a::after { content: '\2197'; font-size: 13px; opacity: .8; }
+  #card a:hover, #card a:focus-visible { background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+  #fallback { position: fixed; inset: 0; margin: 0; display: grid; place-content: center; gap: 10px; padding: 24px; text-align: center;
+    color: #8b929a; font: 15px/1.5 "Segoe UI", system-ui, sans-serif; }
+  #fallback code { color: #5d646c; font: 12px/1.4 Consolas, monospace; word-break: break-word; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="scroll"></div>
+<div id="ui">
+  <div id="hint"></div>
+  <div id="card" hidden>
+    <div class="card-top"><img id="card-logo" alt=""><b id="card-title"></b></div>
+    <p id="card-text"></p><a id="card-link" target="_blank" rel="noopener">Open</a>
+  </div>
+</div>
+<div id="fallback" hidden><span>The 3D view could not start.</span><code id="why"></code></div>
+<script>
+  // shows the real reason on screen if anything goes wrong
+  function w3dFail(msg) { document.getElementById('why').textContent = msg || ''; document.getElementById('fallback').hidden = false; }
+  addEventListener('error', function (e) { w3dFail(e.message || (e.target && e.target.src ? 'Could not load ' + e.target.src : '')); }, true);
+  addEventListener('unhandledrejection', function (e) { w3dFail(String(e.reason && e.reason.message || e.reason)); });
+</script>
+<!-- plain scripts (no modules, no CDN): works offline and when this file is opened by double-click -->
+<script src="js/config.js"></script>
+<script src="dist/engine.js?v=20261012b"></script>
+</body>
+</html>

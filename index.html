@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Automation Protocol</title>
+  <meta name="description" content="An AI workflow automation terminal. Describe a task and watch it run.">
+  <meta name="theme-color" content="#0c1214">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<!--
+  ONE SCREEN ONLY. This page is a single HUD, laid out on the reference screenshot's own grid.
+
+  Layout : every part carries --x --y --w --h in "stage units". The stage is 1671 x 941 units
+           (the reference screenshot) and scales to fit the window. Move or resize a part by
+           changing those four numbers. Map of all parts: docs/DESIGN.md
+  Text   : comes from site.config.js (the words below are only fallbacks).
+  Boot   : data-b="N" is the order in which parts switch on when the page loads.
+-->
+<main class="screen" id="screen">
+  <div class="stage booting" id="stage">
+
+    <div class="p eye" id="eye-box" aria-hidden="true"><canvas id="eye"></canvas><canvas id="bloom"></canvas></div>
+
+    <!-- decoration: soft dots, side squares, stray dashes and arrows -->
+    <div class="deco" aria-hidden="true" data-b="2">
+      <i class="blob" style="--x:1085;--y:88;--s:16"></i><i class="blob" style="--x:940;--y:185;--s:9"></i>
+      <i class="blob" style="--x:1560;--y:610;--s:12"></i><i class="blob" style="--x:70;--y:96;--s:8"></i>
+      <i class="p sqs" style="--x:22;--y:330;--w:16;--h:16"></i><i class="p sqs d" style="--x:22;--y:368;--w:16;--h:14"></i>
+      <i class="p sqs d" style="--x:22;--y:396;--w:16;--h:14"></i><i class="p sqs d" style="--x:22;--y:422;--w:16;--h:14"></i>
+      <i class="p sqs d" style="--x:22;--y:472;--w:16;--h:14"></i>
+      <i class="p dash" style="--x:33;--y:145;--w:38;--h:2"></i>
+      <i class="p dash hot" style="--x:1316;--y:79;--w:46;--h:5"></i>
+      <i class="p dash dim" style="--x:1212;--y:83;--w:50;--h:2"></i>
+      <i class="p dash" style="--x:730;--y:83;--w:230;--h:2"></i>
+      <i class="p dash hot" style="--x:375;--y:868;--w:90;--h:4"></i>
+      <i class="p dash" style="--x:505;--y:870;--w:48;--h:2"></i>
+      <i class="p vline" style="--x:1519;--y:530;--w:2;--h:142"></i>
+      <i class="p vline short" style="--x:1519;--y:704;--w:2;--h:22"></i>
+      <i class="p box faint" style="--x:1300;--y:572;--w:186;--h:184"></i>
+      <span class="p arrow big" style="--x:726;--y:88;--w:26;--h:26">&#8599;</span>
+      <span class="p arrow" style="--x:950;--y:876;--w:30;--h:30">&#8599;</span>
+    </div>
+
+    <!-- top row -->
+    <div class="p pips" style="--x:513;--y:29;--w:180;--h:18" id="pips" aria-hidden="true" data-b="1"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="p user" style="--x:125;--y:78;--w:420;--h:44" data-b="1"><span id="t-user-label">USER:</span><span class="uname" id="t-user-name">VISITOR</span></p>
+    <p class="p badge" style="--x:571;--y:82;--w:61;--h:30" id="badge" data-b="2">82</p>
+
+    <!-- tab strip -->
+    <nav class="tabs" aria-hidden="true" data-b="3">
+      <span class="p tab light" style="--x:121;--y:137;--w:91;--h:25" id="t-notes">NOTES</span>
+      <span class="p tab" style="--x:322;--y:137;--w:184;--h:25"></span>
+      <span class="p tab tick" style="--x:515;--y:138;--w:5;--h:24"></span>
+      <span class="p tab long" style="--x:528;--y:137;--w:524;--h:25" id="t-codes"><b style="--lx:47">S-A.5</b><b style="--lx:133">S-B.9</b><b style="--lx:242">S-C.1</b><b style="--lx:347">S-D.2</b></span>
+      <span class="p tab eng" style="--x:1056;--y:137;--w:188;--h:25" id="t-engine">WORKFLOW ENGINE</span>
+    </nav>
+
+    <!-- headline -->
+    <section class="p headline" style="--x:140;--y:205;--w:840;--h:157" data-b="4">
+      <i class="br tl"></i><i class="br tr"></i><i class="br bl"></i><i class="br rb"></i>
+      <h1 aria-live="polite"><span class="chev">&gt;</span><span id="headline">AUTOMATION PROTOCOL INITIATED</span><span class="us">_</span></h1>
+      <p class="count" id="counter">12/886</p>
+    </section>
+
+    <!-- status list (rows are built from site.config.js) -->
+    <aside class="p status" style="--x:1299;--y:205;--w:187;--h:277" aria-label="System status" data-b="5">
+      <ul id="status"></ul>
+    </aside>
+
+    <!-- process panel -->
+    <section class="p process" style="--x:127;--y:518;--w:271;--h:246" aria-label="Process" data-b="6">
+      <p class="l1"><span id="t-proc-label">PROCESS</span><b id="pr-pct">100%</b></p>
+      <p class="l2"><span><span id="t-time-label">TIME</span> <i id="pr-time">00:11</i></span><b id="pr-state">COMPLETE</b></p>
+      <p class="l3"><span aria-hidden="true">8888</span><b id="pr-ghost" aria-hidden="true">8888.7</b></p>
+      <div class="chevs" id="chevs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="online"><i class="cb"></i><span id="t-online">SYSTEM ONLINE</span></p>
+    </section>
+    <i class="p chev-solo" style="--x:458;--y:628;--w:27;--h:39" aria-hidden="true" data-b="7"></i>
+    <i class="p chev-solo dim" style="--x:764;--y:626;--w:24;--h:39" aria-hidden="true" data-b="7"></i>
+
+    <p class="p srA" style="--x:1300;--y:521;--w:160;--h:44" id="t-model" aria-hidden="true" data-b="7">SR-A</p>
+    <p class="p tiny" style="--x:1420;--y:680;--w:60;--h:12" id="t-small" aria-hidden="true" data-b="9">4S208</p>
+    <i class="p redbar mini" style="--x:1421;--y:705;--w:37;--h:9" aria-hidden="true" data-b="9"></i>
+
+    <!-- six check boxes (built from site.config.js) + two status boxes -->
+    <ol class="p checks" style="--x:814;--y:606;--w:640;--h:60" id="checks" aria-label="Workflow checks" data-b="8"></ol>
+    <div class="p sts" style="--x:814;--y:681;--w:147;--h:74" id="sts" data-b="9"><b id="sts-title">SYSTEM STS</b><span id="sts-t">ONLINE_</span></div>
+    <div class="p sts out" style="--x:970;--y:681;--w:135;--h:74" id="test" data-b="9"><b>SYS TEST</b><span>ENTER PRM.</span></div>
+
+    <!-- command line -->
+    <form class="p cmd" style="--x:112;--y:787;--w:1242;--h:41" id="cmd" autocomplete="off" data-b="10">
+      <label for="cmd-input" class="lab"><i>&gt;</i><span id="t-cmd">ENTER WORKFLOW</span></label>
+      <span class="typed" aria-hidden="true"><span id="echo"></span><span class="us">_</span></span>
+      <input id="cmd-input" name="workflow" type="text" maxlength="120" spellcheck="false" aria-label="Describe a task and press Enter to run it">
+    </form>
+    <button class="p enter" style="--x:1362;--y:787;--w:126;--h:41" id="enter" type="submit" form="cmd" data-b="10">ENTER</button>
+    <span class="p enter go" style="--x:1494;--y:787;--w:38;--h:41" aria-hidden="true" data-b="10"></span>
+
+    <!-- bottom bars -->
+    <div class="p bars" style="--x:806;--y:833;--w:727;--h:23" aria-hidden="true" data-b="11">
+      <span class="bb b1" id="t-bar1">FL:588</span><span class="bb b2" id="t-bar2">FL:849_PB</span><span class="bb b3" id="t-bar3">FL:K98_A</span><span class="bb b4"></span><span class="bb sep"></span><span class="bb b5" id="t-bar4">CORE INJECTION</span>
+    </div>
+    <p class="p console" style="--x:97;--y:843;--w:90;--h:14" id="t-console" aria-hidden="true" data-b="11">CONSOLE :</p>
+    <p class="p consolebox" style="--x:95;--y:864;--w:128;--h:21" id="console" role="status" data-b="11">OK: ALL</p>
+
+  </div>
+
+  <!-- screen filter, stacked above the stage (strengths come from site.config.js) -->
+  <div class="fx fx-grid" aria-hidden="true"></div>
+  <div class="fx fx-scan" aria-hidden="true"></div>
+  <div class="fx fx-roll" aria-hidden="true"></div>
+  <canvas class="fx fx-noise" id="noise" aria-hidden="true"></canvas>
+  <div class="fx fx-vig" aria-hidden="true"></div>
+</main>
+
+<script src="site.config.js"></script>
+<script src="assets/js/eye-data.js" defer></script>
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

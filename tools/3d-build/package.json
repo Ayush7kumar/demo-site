@@ -1,0 +1,7 @@
+{
+  "name": "workflow-3d-build",
+  "private": true,
+  "description": "Bundles workflow-3d/js (engine + three.js + GSAP) into workflow-3d/dist/engine.js so the page works offline and from file://",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "three": "0.170.0", "gsap": "3.12.5", "esbuild": "0.25.0" }
+}
